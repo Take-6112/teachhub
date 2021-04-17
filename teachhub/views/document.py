@@ -256,7 +256,7 @@ def document_note(request, section_id):
         print("lst_doc_info")
         print(lst_doc_info)
 
-        p2 = ""
+        thread2 = ""
         if form.is_valid():
             print("form is valid")
             form.save()
@@ -291,7 +291,7 @@ def document_note(request, section_id):
             document.save()
             
             # ファイルのpdf化
-            p1 = threading.Thread(target=convert_document, args=(
+            thread1 = threading.Thread(target=convert_document, args=(
             request, word_url, pdf_url))
 
             # 1つ前のファイルとの差分作成 / そのファイルの保存
@@ -324,23 +324,23 @@ def document_note(request, section_id):
                 document.diff_word_url = diff_word_url
                 document.save()
 
-                p2 = threading.Thread(target=compare_documents, args=(
+                thread2 = threading.Thread(target=compare_documents, args=(
                     request, pre_word_url, word_url, diff_word_url))
 
             print("convert_document started")
-            p1.start()
+            thread1.start()
             print("started")
 
-            if p2:
+            if thread2:
                 print("compare_documents started")
-                p2.start()
+                thread2.start()
 
             # 2. そのファイルのurlをDBに格納 update
             print("doc_pdf_url")
             print(pdf_url)
             document.doc_pdf_url = pdf_url
             document.save()
-            p1.join()
+            thread1.join()
             print("終了")
 
             return redirect(reverse('teachhub:document_note', args=(section_id,)))
