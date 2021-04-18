@@ -29,16 +29,16 @@ def document_detail(request, pk):
         # document = Document.objects.get(id=pk)
         document = get_object_or_404(Document, pk=pk)
         pdf_url = document.doc_pdf_url
+        
+        context = context_to_show_pdf(document, pdf_url)
+        # viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
+        # pdf_path = "media/" + str(pdf_url)
+        # path = viewer_path + "?file=%2F" + pdf_path 
+        # context = {
+        #     'document': document,
+        #     "path": path
+        # }
 
-        viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
-        pdf_path = "media/" + str(pdf_url)
-        path = viewer_path + "?file=%2F" + pdf_path
- 
-        context = {
-            'document': document,
-            "path": path
-        }
-        # render(request, 'テンプレート名' {'key':'value'})
         return render(
             request,
             'teachhub/document_detail.html',
@@ -50,15 +50,15 @@ def document_detail(request, pk):
 def show_history_detail(request, doc_id):
     document = get_object_or_404(Document, id=doc_id)
     pdf_url = document.doc_pdf_url
-
-    viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
-    pdf_path = "media/" + str(pdf_url)
-    path = viewer_path + "?file=%2F" + pdf_path
-
-    context = {
-        'document': document,
-        "path": path
-    }
+    
+    context = context_to_show_pdf(document, pdf_url)
+    # viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
+    # pdf_path = "media/" + str(pdf_url)
+    # path = viewer_path + "?file=%2F" + pdf_path
+    # context = {
+    #     'document': document,
+    #     "path": path
+    # }
     # 履歴の情報をコンテクストに追加
     context_histories = get_history(request, doc_id)
     context.update(context_histories)    
@@ -74,14 +74,16 @@ def show_diff(request, doc_id):
 
     if diff_pdf_url:
         pdf_url = diff_pdf_url
-        viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
-        pdf_path = "media/" + str(pdf_url)
-        path = viewer_path + "?file=%2F" + pdf_path
+        
+        context = context_to_show_pdf(document, pdf_url)
+        # viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
+        # pdf_path = "media/" + str(pdf_url)
+        # path = viewer_path + "?file=%2F" + pdf_path
+        # context = {
+        #     'document': document,
+        #     "path": path
+        # }
 
-        context = {
-            'document': document,
-            "path": path
-        }   
         context_histories = get_history(request, doc_id)
         context.update(context_histories)    
 
@@ -95,14 +97,16 @@ def show_diff(request, doc_id):
         document.diff_pdf_url = diff_pdf_url
         document.save()
         pdf_url = diff_pdf_url
-        viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
-        pdf_path = "media/" + str(pdf_url)
-        path = viewer_path + "?file=%2F" + pdf_path
 
-        context = {
-            'document': document,
-            "path": path
-        }   
+        context = context_to_show_pdf(document, pdf_url)
+        # viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
+        # pdf_path = "media/" + str(pdf_url)
+        # path = viewer_path + "?file=%2F" + pdf_path
+        # context = {
+        #     'document': document,
+        #     "path": path
+        # }
+
         context_histories = get_history(request, doc_id)
         context.update(context_histories)
         
@@ -110,21 +114,22 @@ def show_diff(request, doc_id):
 
     else:
         context = get_history(request, doc_id)
+        
         return render(request, 'teachhub/history.html', context)
 
 
-# @login_required
-# def context_to_show_pdf(doc, pdf_url):
-#     # pdfをブラウザで表示するためにpdf.jsを使用
-#     # pdfをひょじするためのviewerのpath
-#     viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
-#     pdf_path = "media/" + str(pdf_url)
-#     path = viewer_path + "?file=%2F" + pdf_path
-#     context = {
-#         'document': doc,
-#         "path": path
-#         }
-#     return context
+def context_to_show_pdf(document, pdf_url):
+    # pdfをブラウザで表示するためにpdf.jsを使用
+    # pdfをひょじするためのviewerのpath
+    viewer_path = "/static/teachhub/pdfjs-2.7.570-dist/web/viewer.html"
+    pdf_path = "media/" + str(pdf_url)
+    path = viewer_path + "?file=%2F" + pdf_path
+    context = {
+        'document': document,
+        "path": path
+    }
+
+    return context
 
 #############
 # Read 一覧 #
