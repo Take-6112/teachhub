@@ -234,7 +234,48 @@ def document_note(request, section_id):
     textbook = chapter.textbook
     textbook_name = textbook.name
 
+    thread1 = ""
+    thread2 = ""
+
     if request.method == 'POST':
+        upload_document(request, category, textbook_name, chapter_name, section_name, section_id)
+
+        if thread1:
+            print("convert_document started")
+            thread1.start()
+
+        if thread2:
+            print("compare_documents started")
+            thread2.start()
+
+        if thread1:
+            thread1.join()
+        print("終了")
+
+        return redirect(reverse('teachhub:document_note', args=(section_id,)))
+    else:
+        # TODO
+        # user_idとnameでフィルタリングして、その中で最新のもの
+        documents = Document.objects.filter(
+            category=category, section_id=section_id).order_by('id')
+        form = DocumentForm()
+        context = {
+            "documents": documents,
+            "textbook_name": textbook_name,
+            "chapter_name": chapter_name,
+            "section_name": section_name,
+            'form': form
+            }
+        
+        return render(
+            request,
+            'teachhub/document_note.html',
+            context
+        )
+
+def upload_document(
+      request, category, textbook_name, chapter_name, section_name, section_id):
+
         JST = timezone(timedelta(hours=+9), 'JST')
         date = datetime.now(JST)
         current_time = date.strftime('%Y-%m-%d-%H-%M-%S')
@@ -256,7 +297,7 @@ def document_note(request, section_id):
         print("lst_doc_info")
         print(lst_doc_info)
 
-        thread2 = ""
+        pdf_url = ""
         if form.is_valid():
             print("form is valid")
             form.save()
@@ -287,6 +328,7 @@ def document_note(request, section_id):
             document.created_at = date
             document.name = name_by_writer
             document.category = category
+            document.doc_pdf_url = pdf_url
             print(date)
             document.save()
             
@@ -343,26 +385,7 @@ def document_note(request, section_id):
             thread1.join()
             print("終了")
 
-            return redirect(reverse('teachhub:document_note', args=(section_id,)))
-    else:
-        # TODO
-        # user_idとnameでフィルタリングして、その中で最新のもの
-        documents = Document.objects.filter(
-            category=category, section_id=section_id).order_by('id')
-        form = DocumentForm()
-        context = {
-            "documents": documents,
-            "textbook_name": textbook_name,
-            "chapter_name": chapter_name,
-            "section_name": section_name,
-            'form': form
-            }
-        
-        return render(
-            request,
-            'teachhub/document_note.html',
-            context
-        )
+        return pdf_url
 
 
 
