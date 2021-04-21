@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -82,12 +82,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 's0506083',
-        'HOST': 'localhost',
-        'PORT': 5433,
+        'ENGINE': os.environ.get('DB_ENGINE'),
+        'NAME': os.environ.get("DB_NAME"),
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT"),
+        'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
 
@@ -143,3 +144,30 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/textbooks/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# 静的サーバーの設定（外部パッケージ利用する）オートスケーリング
+STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+AZURE_ACCOUNT_NAME = os.environ.get("AZURE_ACCOUNT_NAME")
+AZURE_ACCOUNT_KEY = os.environ.get("AZURE_ACCOUNT_KEY")
+AZURE_CUSTOM_DOMAIN = 'XXXXXXXXXXXX.blob.core.windows.net'
+AZURE_CONTAINER = 'app'
+STATIC_ROOT = f'https://{AZURE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/static/'
+STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/static/'
+MEDIA_ROOT = f'https://{AZURE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/media/'
+MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/media/'
+
+
+# local_settings.pyを読み込んでローカル情報で上書きする
+PROJECT_APP_PATH = os.path.dirname(os.path.abspath(__file__))
+PROJECT_APP = os.path.basename(PROJECT_APP_PATH)
+f = os.path.join(PROJECT_APP_PATH, 'local_settings.py')
+if os.path.exists(f):
+    # from .local_settings import *これはＮＧ
+    import sys
+    import imp
+    module_name = '{}.local_settings'.format(PROJECT_APP)
+    module = imp.new_module(module_name)
+    module.__file__ = f
+    sys.modules[module_name] = module
+    exec(open(f, 'rb').read())
