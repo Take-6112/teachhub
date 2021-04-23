@@ -59,4 +59,4 @@ jobs:
         with:
           app-name: 'teachhub'
           slot-name: 'production'
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_7c265e9f3bb8481ea14f27a87767ea60 }}
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_916054640f174344a1fecc7ec7c19af0 }}
