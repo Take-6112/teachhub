@@ -73,3 +73,6 @@ div.paper >a.hoge {
     display: flex;
     width: 80px;
 }
+.upload {
+    display: none;
+}
